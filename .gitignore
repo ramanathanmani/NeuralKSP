@@ -1,0 +1,13 @@
+*
+!index.html
+!client-package.json
+!catalyst.json
+!README.md
+!NeuralKSP_Hack2Skill_Official_Template.pptx
+!.gitignore
+!styles/
+!styles/**
+!js/
+!js/**
+!client/
+!client/**

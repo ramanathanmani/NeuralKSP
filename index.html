@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralKSP — AI Crime Intelligence Command Center</title>
+    <meta name="description" content="AI-Driven Crime Analytics and Visualization Platform for Karnataka State Police. Predictive intelligence, criminal network mapping, and conversational AI.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring delay-1"></div>
+                <div class="pulse-ring delay-2"></div>
+                <svg viewBox="0 0 100 100" class="logo-svg" style="width:70px; height:70px;">
+                    <defs>
+                        <linearGradient id="loaderBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f0ff"/>
+                            <stop offset="50%" stop-color="#3b82f6"/>
+                            <stop offset="100%" stop-color="#a855f7"/>
+                        </linearGradient>
+                        <linearGradient id="loaderShieldFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="rgba(0, 240, 255, 0.25)"/>
+                            <stop offset="100%" stop-color="rgba(168, 85, 247, 0.05)"/>
+                        </linearGradient>
+                        <filter id="loaderBadgeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur"/>
+                            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                        </filter>
+                    </defs>
+                    <path d="M 50,8 L 88,24 L 88,52 C 88,74 50,92 50,92 C 50,92 12,74 12,52 L 12,24 Z" fill="url(#loaderShieldFill)" stroke="url(#loaderBadgeGrad)" stroke-width="3" stroke-linejoin="round" filter="url(#loaderBadgeGlow)"/>
+                    <path d="M 50,22 L 50,78 M 24,35 L 76,35 M 24,65 L 76,65" stroke="url(#loaderBadgeGrad)" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+                    <polygon points="50,26 56,42 72,42 58,52 64,68 50,57 36,68 42,52 28,42 44,42" fill="none" stroke="url(#loaderBadgeGrad)" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="50" cy="50" r="5" fill="#00f0ff"/>
+                    <circle cx="50" cy="26" r="2.5" fill="#a855f7"/>
+                    <circle cx="72" cy="42" r="2.5" fill="#a855f7"/>
+                    <circle cx="28" cy="42" r="2.5" fill="#a855f7"/>
+                </svg>
+            </div>
+            <h1 class="loader-title">NeuralKSP</h1>
+            <p class="loader-subtitle">Initializing Crime Intelligence Engine...</p>
+            <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- App Shell -->
+    <div id="app" class="app" style="display:none;">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg viewBox="0 0 100 100" width="38" height="38" class="logo-badge-svg">
+                        <defs>
+                            <linearGradient id="neuralBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00f0ff"/>
+                                <stop offset="50%" stop-color="#3b82f6"/>
+                                <stop offset="100%" stop-color="#a855f7"/>
+                            </linearGradient>
+                            <linearGradient id="shieldFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(0, 240, 255, 0.25)"/>
+                                <stop offset="100%" stop-color="rgba(168, 85, 247, 0.05)"/>
+                            </linearGradient>
+                            <filter id="badgeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                            </filter>
+                        </defs>
+                        <!-- Shield Outer Frame -->
+                        <path d="M 50,8 L 88,24 L 88,52 C 88,74 50,92 50,92 C 50,92 12,74 12,52 L 12,24 Z" fill="url(#shieldFill)" stroke="url(#neuralBadgeGrad)" stroke-width="3" stroke-linejoin="round" filter="url(#badgeGlow)"/>
+                        <!-- Inner Cyber Grid Lines -->
+                        <path d="M 50,22 L 50,78 M 24,35 L 76,35 M 24,65 L 76,65" stroke="url(#neuralBadgeGrad)" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+                        <!-- Police Star & Neural Core -->
+                        <polygon points="50,26 56,42 72,42 58,52 64,68 50,57 36,68 42,52 28,42 44,42" fill="none" stroke="url(#neuralBadgeGrad)" stroke-width="2.5" stroke-linejoin="round"/>
+                        <circle cx="50" cy="50" r="5" fill="#00f0ff"/>
+                        <circle cx="50" cy="26" r="2.5" fill="#a855f7"/>
+                        <circle cx="72" cy="42" r="2.5" fill="#a855f7"/>
+                        <circle cx="28" cy="42" r="2.5" fill="#a855f7"/>
+                    </svg>
+                    <div class="sidebar-brand">
+                        <span class="brand-name">NeuralKSP</span>
+                        <span class="brand-tag">Crime Intelligence</span>
+                    </div>
+                </div>
+                <button id="sidebar-close-btn" class="sidebar-close-btn" title="Close Menu">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-nav">
+                <button class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-page="network" id="nav-network">
+                    <i data-lucide="git-branch"></i>
+                    <span>Network Intel</span>
+                </button>
+                <button class="nav-item" data-page="pulse" id="nav-pulse">
+                    <i data-lucide="activity"></i>
+                    <span>Crime Pulse</span>
+                </button>
+                <button class="nav-item" data-page="chat" id="nav-chat">
+                    <i data-lucide="message-square"></i>
+                    <span>AI Assistant</span>
+                </button>
+                <button class="nav-item" data-page="briefing" id="nav-briefing">
+                    <i data-lucide="file-text"></i>
+                    <span>Briefings</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-status">
+                    <div class="status-dot online"></div>
+                    <span>System Active</span>
+                </div>
+                <div class="sidebar-meta">
+                    <span>KSP Datathon 2026</span>
+                    <span>Powered by Zoho Catalyst</span>
+                </div>
+            </div>
+        </nav>
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <!-- Top Bar -->
+            <header id="topbar" class="topbar">
+                <div class="topbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-icon"><i data-lucide="layout-dashboard"></i></span>
+                        <span id="page-title" class="breadcrumb-text">Dashboard</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-search">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="global-search" placeholder="Search crimes, accused, stations..." />
+                    </div>
+                    <div class="topbar-actions">
+                        <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">
+                            <i data-lucide="moon" id="theme-icon"></i>
+                        </button>
+                        <button id="lang-toggle" class="icon-btn" title="Toggle Language">
+                            <span class="lang-label">EN</span>
+                        </button>
+                        <button id="alerts-btn" class="icon-btn has-badge" title="Anomaly Alerts">
+                            <i data-lucide="bell"></i>
+                            <span id="alert-count" class="badge">3</span>
+                        </button>
+                        <div class="user-avatar" id="user-profile-btn" title="Officer Profile">
+                            <span>SP</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Container -->
+            <div id="page-container" class="page-container">
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="view active">
+                    <div class="view-header">
+                        <h1>Crime Intelligence Dashboard</h1>
+                        <p>Real-time analytics and anomaly detection across Karnataka</p>
+                    </div>
+                    
+                    <!-- Stats Row -->
+                    <div id="stats-row" class="stats-row"></div>
+                    
+                    <!-- Anomaly Alerts -->
+                    <div id="anomaly-alerts" class="anomaly-alerts-container"></div>
+
+                    <!-- Charts Row -->
+                    <div class="charts-grid">
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="trending-up"></i> Crime Trend (12 Months)</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="pie-chart"></i> Crime Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row -->
+                    <div class="charts-grid">
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="map-pin"></i> District Hotspots</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="districtChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="alert-triangle"></i> Recent Anomalies</h3>
+                            </div>
+                            <div class="card-body" id="recent-anomalies"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Network Intel View -->
+                <section id="view-network" class="view">
+                    <div class="view-header">
+                        <h1>Criminal Network Intelligence</h1>
+                        <p>Graph-based syndicate detection, centrality analysis & shortest path link tracer</p>
+                    </div>
+                    <div class="network-controls glass-card" style="flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                        <div class="control-group">
+                            <label>District Filter</label>
+                            <select id="network-district-filter">
+                                <option value="all">All Districts</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Crime Category</label>
+                            <select id="network-category-filter">
+                                <option value="all">All Categories</option>
+                                <option value="Property Crime">Property Crime</option>
+                                <option value="Violent">Violent Crime</option>
+                                <option value="Economic Offence">Economic / Fraud</option>
+                                <option value="Cyber">Cyber Crime</option>
+                                <option value="Narcotics">Narcotics</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Display Density</label>
+                            <select id="network-node-limit">
+                                <option value="35">Top 35 High-Risk (Clean View)</option>
+                                <option value="60">Top 60 Connected</option>
+                                <option value="100">Top 100 Suspects</option>
+                                <option value="all">All 300 Suspects</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Min Connections</label>
+                            <input type="range" id="network-min-connections" min="1" max="10" value="3">
+                            <span id="min-conn-value">3</span>
+                        </div>
+
+                        <button id="network-pathfinder-btn" class="btn btn-secondary" title="Trace shortest path between suspects">
+                            <i data-lucide="git-commit"></i> Path Finder
+                        </button>
+                        <button id="network-refresh" class="btn btn-primary">
+                            <i data-lucide="refresh-cw"></i> Refresh Graph
+                        </button>
+                    </div>
+
+                    <!-- Pathfinder Drawer Bar (Hidden by default) -->
+                    <div id="pathfinder-bar" class="glass-card" style="display:none; padding:12px 20px; margin-bottom:16px; align-items:center; gap:16px; border-left:4px solid var(--accent-cyan);">
+                        <div style="font-weight:700; color:var(--accent-cyan); display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="git-merge"></i> Shortest Link Tracer:
+                        </div>
+                        <select id="path-source" style="padding:6px; background:var(--bg-tertiary); color:var(--text-primary); border:var(--border-subtle); border-radius:6px;">
+                            <option value="">Select Suspect A...</option>
+                        </select>
+                        <span style="color:var(--text-muted);">➔</span>
+                        <select id="path-target" style="padding:6px; background:var(--bg-tertiary); color:var(--text-primary); border:var(--border-subtle); border-radius:6px;">
+                            <option value="">Select Suspect B...</option>
+                        </select>
+                        <button id="trace-path-btn" class="btn btn-primary btn-sm">Trace Connection</button>
+                        <div id="path-result" style="font-size:0.85rem; color:var(--text-secondary); font-weight:600;"></div>
+                    </div>
+
+                    <div class="network-container">
+                        <div class="glass-card network-graph-card">
+                            <div id="network-graph" class="network-graph"></div>
+                        </div>
+                        <div class="network-sidebar">
+                            <div class="glass-card" id="network-stats">
+                                <div class="card-header"><h3><i data-lucide="bar-chart-3"></i> Network Graph Metrics</h3></div>
+                                <div class="card-body" id="network-stats-body"></div>
+                            </div>
+                            <div class="glass-card" id="kingpins-list">
+                                <div class="card-header"><h3 style="color:var(--accent-amber);"><i data-lucide="crown"></i> Key Ring leaders / Kingpins</h3></div>
+                                <div class="card-body" id="kingpins-list-body"></div>
+                            </div>
+                            <div class="glass-card" id="node-details">
+                                <div class="card-header"><h3><i data-lucide="user"></i> Selected Suspect Dossier</h3></div>
+                                <div class="card-body" id="node-details-body">
+                                    <p class="placeholder-text">Click any node on the graph to inspect criminal dossier</p>
+                                </div>
+                            </div>
+                            <div class="glass-card" id="syndicate-list">
+                                <div class="card-header"><h3><i data-lucide="users"></i> Detected Syndicates</h3></div>
+                                <div class="card-body" id="syndicate-list-body"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Crime Pulse View -->
+                <section id="view-pulse" class="view">
+                    <div class="view-header">
+                        <h1>Temporal Crime Pulse Engine</h1>
+                        <p>Predict when crimes happen — temporal pattern analysis & anomaly detection</p>
+                    </div>
+                    <div class="pulse-grid">
+                        <div class="glass-card pulse-heatmap-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="calendar"></i> Weekly Crime Rhythm</h3>
+                                <span class="card-subtitle">Hour × Day heatmap of crime frequency</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="pulse-heatmap"></div>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="clock"></i> Predicted Crime Windows</h3>
+                            </div>
+                            <div class="card-body" id="predicted-windows"></div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="activity"></i> Crime Pulse Timeline</h3>
+                                <span class="card-subtitle">Daily crime count with anomaly markers</span>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="pulseTimeline"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="map"></i> Geographic Crime Heatmap</h3>
+                            </div>
+                            <div class="card-body map-body">
+                                <div id="crime-heatmap"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Chat View -->
+                <section id="view-chat" class="view">
+                    <div class="view-header">
+                        <h1>AI Crime Intelligence Assistant</h1>
+                        <p>Natural language queries in English & Kannada — with voice support</p>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-main glass-card">
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="chat-welcome">
+                                    <div class="chat-welcome-icon">
+                                        <i data-lucide="bot"></i>
+                                    </div>
+                                    <h2>NeuralKSP Assistant</h2>
+                                    <p>Ask me anything about crime data, patterns, or investigations. I understand English and Kannada.</p>
+                                    <div class="chat-suggestions" id="chat-suggestions"></div>
+                                </div>
+                            </div>
+                            <div class="chat-input-area">
+                                <div class="chat-lang-indicator" id="chat-lang">
+                                    <span class="lang-dot"></span>
+                                    <span>English</span>
+                                </div>
+                                <div class="chat-input-wrapper">
+                                    <textarea id="chat-input" placeholder="Ask about crimes, patterns, suspects..." rows="1"></textarea>
+                                    <button id="voice-btn" class="icon-btn voice-btn" title="Voice Input">
+                                        <i data-lucide="mic"></i>
+                                    </button>
+                                    <button id="send-btn" class="icon-btn send-btn" title="Send">
+                                        <i data-lucide="send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-sidebar">
+                            <div class="glass-card">
+                                <div class="card-header"><h3><i data-lucide="history"></i> Query History</h3></div>
+                                <div class="card-body" id="query-history"></div>
+                            </div>
+                            <div class="glass-card">
+                                <div class="card-header"><h3><i data-lucide="lightbulb"></i> Quick Queries</h3></div>
+                                <div class="card-body" id="quick-queries"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Briefing View -->
+                <section id="view-briefing" class="view">
+                    <div class="view-header">
+                        <h1>Intelligence Briefings</h1>
+                        <p>Auto-generated daily intelligence reports for each station</p>
+                    </div>
+                    <div class="briefing-controls glass-card">
+                        <div class="control-group">
+                            <label data-i18n="stationLabel">Station</label>
+                            <select id="briefing-station">
+                                <option value="all">All Stations</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label data-i18n="dateLabel">Date</label>
+                            <input type="date" id="briefing-date">
+                        </div>
+                        <button id="generate-briefing" class="btn btn-primary"><i data-lucide="file-text"></i> <span data-i18n="generateBriefing">Generate Briefing</span></button>
+                        <button id="export-briefing" class="btn btn-secondary"><i data-lucide="download"></i> <span data-i18n="exportPdf">Export PDF</span></button>
+                    </div>
+                    <div id="briefing-content" class="briefing-content"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/pulse.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/briefing.js"></script>
+</body>
+</html>
